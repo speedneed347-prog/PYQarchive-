@@ -1,0 +1,138 @@
+<resources>
+    <string name="app_name">PYQ Archive</string>
+
+    <!-- Navigation -->
+    <string name="nav_home">Home</string>
+    <string name="nav_universities">Universities</string>
+    <string name="nav_search">Search</string>
+    <string name="nav_downloads">Downloads</string>
+    <string name="nav_settings">Settings</string>
+
+    <!-- Student Specification & Onboarding -->
+    <string name="onboarding_title">Welcome to PYQ Archive</string>
+    <string name="onboarding_subtitle">Select your university, semester, and subject to get personalized exam countdowns, recommendations, and exam alerts.</string>
+    <string name="student_profile_title">My Academic Profile</string>
+    <string name="student_profile_desc">Set your university, semester and subject for personalized countdown and papers</string>
+    <string name="select_your_university">Select University</string>
+    <string name="select_your_semester">Select Semester</string>
+    <string name="select_your_subject">Select Subject</string>
+    <string name="save_and_continue">Save &amp; Continue</string>
+    <string name="edit_academic_details">Edit Academic Details</string>
+    <string name="my_exam_countdown">Your Exam Countdown</string>
+    <string name="recommended_for_you">Recommended For You</string>
+    <string name="skip_setup">Skip for Now</string>
+    <string name="profile_updated">Academic details updated successfully.</string>
+    <string name="exam_alerts_active">Automated exam alerts enabled for your semester.</string>
+
+    <!-- Home -->
+    <string name="home_title">PYQ Archive</string>
+    <string name="home_subtitle">Explore previous year university question papers</string>
+    <string name="search_placeholder">Search papers, subjects, universities…</string>
+    <string name="browse_universities">Universities</string>
+    <string name="view_all">View All</string>
+    <string name="popular_papers">Popular Papers</string>
+    <string name="recent_papers">Recently Viewed</string>
+    <string name="upcoming_exams">Upcoming Exam Countdown</string>
+    <string name="no_recent_papers">No recently viewed papers yet.</string>
+    <string name="no_popular_papers">No popular papers found.</string>
+    <string name="no_exams_scheduled">No exam schedules available right now.</string>
+
+    <!-- Universities -->
+    <string name="universities_title">Universities</string>
+    <string name="search_universities">Filter universities…</string>
+    <string name="no_universities_found">No universities match your search.</string>
+    <string name="view_papers">View Papers</string>
+
+    <!-- University Detail -->
+    <string name="courses">Courses</string>
+    <string name="semesters">Semesters</string>
+    <string name="subjects">Subjects</string>
+    <string name="years">Years</string>
+    <string name="select_course">Select Course</string>
+    <string name="select_semester">Select Semester</string>
+    <string name="select_subject">Select Subject</string>
+
+    <!-- Search & Filters -->
+    <string name="search_title">Search Question Papers</string>
+    <string name="all_universities">All Universities</string>
+    <string name="all_courses">All Courses</string>
+    <string name="all_semesters">All Semesters</string>
+    <string name="all_subjects">All Subjects</string>
+    <string name="all_years">All Years</string>
+    <string name="all_paper_types">All Types</string>
+    <string name="all_languages">All Languages</string>
+    <string name="filter_results">Filter Results</string>
+    <string name="clear_filters">Clear All</string>
+    <string name="results_count">%1$d papers found</string>
+    <string name="no_papers_found">No question papers found.</string>
+
+    <!-- Paper Details -->
+    <string name="paper_details">Paper Details</string>
+    <string name="open_pdf">View PDF</string>
+    <string name="download_pdf">Download PDF</string>
+    <string name="open_external">Open with External App</string>
+    <string name="share_paper">Share Paper</string>
+    <string name="favorite">Favorite</string>
+    <string name="favorited">Favorited</string>
+    <string name="personal_notes">Personal Notes</string>
+    <string name="notes_placeholder">Write your revision notes, syllabus tips or reminders here…</string>
+    <string name="save_notes">Save Notes</string>
+    <string name="notes_saved">Notes saved locally on device.</string>
+    <string name="paper_info">Paper Information</string>
+    <string name="university_label">University</string>
+    <string name="course_label">Course</string>
+    <string name="semester_label">Semester</string>
+    <string name="subject_label">Subject</string>
+    <string name="year_label">Year</string>
+    <string name="paper_type_label">Paper Type</string>
+    <string name="language_label">Language</string>
+    <string name="views_label">Views</string>
+
+    <!-- PDF Viewer -->
+    <string name="pdf_viewer">PDF Reader</string>
+    <string name="page_counter">Page %1$d of %2$d</string>
+    <string name="downloading_pdf">Downloading PDF…</string>
+    <string name="pdf_downloaded">PDF saved to device</string>
+    <string name="pdf_error">Unable to load or display this PDF.</string>
+    <string name="offline_badge">Offline Copy</string>
+
+    <!-- Downloads -->
+    <string name="downloads_title">Saved Papers &amp; Downloads</string>
+    <string name="no_downloads">No downloaded papers yet</string>
+    <string name="no_downloads_desc">Papers you download or view will be cached here for offline access.</string>
+    <string name="delete">Delete</string>
+    <string name="file_size">Size: %1$s</string>
+
+    <!-- Exam Reminders -->
+    <string name="exams_title">Exam Schedules</string>
+    <string name="days_remaining">%1$d days left</string>
+    <string name="exam_today">Exam starts today!</string>
+    <string name="set_exam_reminder">Set Reminder</string>
+    <string name="reminder_set_msg">Reminder set for %1$s</string>
+    <string name="reminder_notification_title">Upcoming Exam Reminder</string>
+    <string name="reminder_notification_body">Your exam for %1$s starts soon.</string>
+
+    <!-- Settings -->
+    <string name="settings_title">Settings</string>
+    <string name="pref_language">App Language</string>
+    <string name="pref_language_desc">Choose English or বাংলা (Bengali)</string>
+    <string name="pref_theme">Appearance</string>
+    <string name="theme_system">System Default</string>
+    <string name="theme_light">Light</string>
+    <string name="theme_dark">Dark</string>
+    <string name="pref_storage">Storage &amp; Cache</string>
+    <string name="clear_cache_title">Clear Cached PDFs &amp; Data</string>
+    <string name="clear_cache_desc">Free up storage space used by cached PDFs</string>
+    <string name="cache_cleared">Cache cleared successfully.</string>
+    <string name="about_title">About PYQ Archive</string>
+    <string name="about_desc">Native Android client connecting to the official PYQ Archive database for students across universities.</string>
+    <string name="privacy_title">Privacy Policy</string>
+    <string name="privacy_desc">All bookmarks, downloads, and notes are stored strictly locally on your device.</string>
+
+    <!-- Common -->
+    <string name="loading">Loading…</string>
+    <string name="retry">Try Again</string>
+    <string name="error">An error occurred.</string>
+    <string name="offline_mode">Offline Mode</string>
+    <string name="online_mode">Online</string>
+</resources>

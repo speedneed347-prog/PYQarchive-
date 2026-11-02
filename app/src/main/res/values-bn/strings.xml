@@ -1,0 +1,138 @@
+<resources>
+    <string name="app_name">পিওয়াইকিউ আর্কাইভ</string>
+
+    <!-- Navigation -->
+    <string name="nav_home">হোম</string>
+    <string name="nav_universities">বিশ্ববিদ্যালয়</string>
+    <string name="nav_search">অনুসন্ধান</string>
+    <string name="nav_downloads">ডাউনলোড</string>
+    <string name="nav_settings">সেটিংস</string>
+
+    <!-- Student Specification & Onboarding -->
+    <string name="onboarding_title">পিওয়াইকিউ আর্কাইভে স্বাগতম</string>
+    <string name="onboarding_subtitle">আপনার বিশ্ববিদ্যালয়, সেমিস্টার এবং বিষয় নির্বাচন করুন যাতে প্রাসঙ্গিক পরীক্ষার কাউন্টডাউন, প্রস্তাবিত প্রশ্নপত্র এবং অ্যালার্ট পেতে পারেন।</string>
+    <string name="student_profile_title">আমার একাডেমিক প্রোফাইল</string>
+    <string name="student_profile_desc">ব্যক্তিগতকৃত পরীক্ষার কাউন্টডাউন ও প্রশ্নপত্রের জন্য আপনার বিশ্ববিদ্যালয়, সেমিস্টার ও বিষয় সেট করুন</string>
+    <string name="select_your_university">বিশ্ববিদ্যালয় নির্বাচন করুন</string>
+    <string name="select_your_semester">সেমিস্টার নির্বাচন করুন</string>
+    <string name="select_your_subject">বিষয় নির্বাচন করুন</string>
+    <string name="save_and_continue">সংরক্ষণ করে এগিয়ে যান</string>
+    <string name="edit_academic_details">একাডেমিক তথ্য পরিবর্তন করুন</string>
+    <string name="my_exam_countdown">আপনার পরীক্ষার কাউন্টডাউন</string>
+    <string name="recommended_for_you">আপনার জন্য প্রস্তাবিত প্রশ্নপত্র</string>
+    <string name="skip_setup">আপাতত বাদ দিন</string>
+    <string name="profile_updated">একাডেমিক তথ্য সফলভাবে আপডেট হয়েছে।</string>
+    <string name="exam_alerts_active">আপনার সেমিস্টার পরীক্ষার জন্য স্বয়ংক্রিয় সতর্কতা সক্রিয় করা হয়েছে।</string>
+
+    <!-- Home -->
+    <string name="home_title">পিওয়াইকিউ আর্কাইভ</string>
+    <string name="home_subtitle">বিশ্ববিদ্যালয়ের বিগত বছরের প্রশ্নপত্র সংগ্রহ</string>
+    <string name="search_placeholder">প্রশ্নপত্র, বিষয় বা বিশ্ববিদ্যালয় খুঁজুন…</string>
+    <string name="browse_universities">বিশ্ববিদ্যালয়সমূহ</string>
+    <string name="view_all">সব দেখুন</string>
+    <string name="popular_papers">জনপ্রিয় প্রশ্নপত্র</string>
+    <string name="recent_papers">সম্প্রতি দেখা প্রশ্নপত্র</string>
+    <string name="upcoming_exams">আসন্ন পরীক্ষা কাউন্টডাউন</string>
+    <string name="no_recent_papers">এখনো কোনো প্রশ্নপত্র দেখা হয়নি।</string>
+    <string name="no_popular_papers">জনপ্রিয় প্রশ্নপত্র পাওয়া যায়নি।</string>
+    <string name="no_exams_scheduled">বর্তমানে কোনো পরীক্ষার সময়সূচী নেই।</string>
+
+    <!-- Universities -->
+    <string name="universities_title">বিশ্ববিদ্যালয়সমূহ</string>
+    <string name="search_universities">বিশ্ববিদ্যালয় খুঁজুন…</string>
+    <string name="no_universities_found">কোনো বিশ্ববিদ্যালয় পাওয়া যায়নি।</string>
+    <string name="view_papers">প্রশ্নপত্র দেখুন</string>
+
+    <!-- University Detail -->
+    <string name="courses">কোর্সসমূহ</string>
+    <string name="semesters">সেমিস্টার</string>
+    <string name="subjects">বিষয়সমূহ</string>
+    <string name="years">বছর</string>
+    <string name="select_course">কোর্স নির্বাচন করুন</string>
+    <string name="select_semester">সেমিস্টার নির্বাচন করুন</string>
+    <string name="select_subject">বিষয় নির্বাচন করুন</string>
+
+    <!-- Search & Filters -->
+    <string name="search_title">প্রশ্নপত্র অনুসন্ধান</string>
+    <string name="all_universities">সব বিশ্ববিদ্যালয়</string>
+    <string name="all_courses">সব কোর্স</string>
+    <string name="all_semesters">সব সেমিস্টার</string>
+    <string name="all_subjects">সব বিষয়</string>
+    <string name="all_years">সব বছর</string>
+    <string name="all_paper_types">সব ধরন</string>
+    <string name="all_languages">সব ভাষা</string>
+    <string name="filter_results">ফিল্টার করুন</string>
+    <string name="clear_filters">সব মুছুন</string>
+    <string name="results_count">%1$dটি প্রশ্নপত্র পাওয়া গেছে</string>
+    <string name="no_papers_found">কোনো প্রশ্নপত্র পাওয়া যায়নি।</string>
+
+    <!-- Paper Details -->
+    <string name="paper_details">প্রশ্নপত্রের বিবরণ</string>
+    <string name="open_pdf">পিডিএফ দেখুন</string>
+    <string name="download_pdf">পিডিএফ ডাউনলোড</string>
+    <string name="open_external">অন্য অ্যাপে খুলুন</string>
+    <string name="share_paper">শেয়ার করুন</string>
+    <string name="favorite">প্রিয় তালিকা</string>
+    <string name="favorited">প্রিয় তালিকায় সংরক্ষিত</string>
+    <string name="personal_notes">ব্যক্তিগত নোট</string>
+    <string name="notes_placeholder">আপনার পরীক্ষার নোট বা রিভিশন টিপস এখানে লিখুন…</string>
+    <string name="save_notes">নোট সংরক্ষণ করুন</string>
+    <string name="notes_saved">নোট ডিভাইসে সংরক্ষিত হয়েছে।</string>
+    <string name="paper_info">প্রশ্নপত্রের তথ্য</string>
+    <string name="university_label">বিশ্ববিদ্যালয়</string>
+    <string name="course_label">কোর্স</string>
+    <string name="semester_label">সেমিস্টার</string>
+    <string name="subject_label">বিষয়</string>
+    <string name="year_label">বছর</string>
+    <string name="paper_type_label">ধরন</string>
+    <string name="language_label">ভাষা</string>
+    <string name="views_label">ভিউ</string>
+
+    <!-- PDF Viewer -->
+    <string name="pdf_viewer">পিডিএফ রিডার</string>
+    <string name="page_counter">পৃষ্ঠা %1$d এর %2$d</string>
+    <string name="downloading_pdf">পিডিএফ ডাউনলোড হচ্ছে…</string>
+    <string name="pdf_downloaded">পিডিএফ ডিভাইসে সংরক্ষিত হয়েছে</string>
+    <string name="pdf_error">পিডিএফ লোড করা যায়নি।</string>
+    <string name="offline_badge">অফলাইন কপি</string>
+
+    <!-- Downloads -->
+    <string name="downloads_title">সংরক্ষিত প্রশ্নপত্র ও ডাউনলোড</string>
+    <string name="no_downloads">কোনো ডাউনলোড করা ফাইল নেই</string>
+    <string name="no_downloads_desc">আপনি যে প্রশ্নপত্রগুলো ডাউনলোড করবেন তা এখানে অফলাইনে পড়ার জন্য সংরক্ষিত থাকবে।</string>
+    <string name="delete">মুছুন</string>
+    <string name="file_size">আকার: %1$s</string>
+
+    <!-- Exam Reminders -->
+    <string name="exams_title">পরীক্ষার সময়সূচী</string>
+    <string name="days_remaining">%1$d দিন বাকি</string>
+    <string name="exam_today">পরীক্ষা আজ শুরু হচ্ছে!</string>
+    <string name="set_exam_reminder">রিমাইন্ডার সেট করুন</string>
+    <string name="reminder_set_msg">%1$s এর জন্য রিমাইন্ডার সেট করা হয়েছে</string>
+    <string name="reminder_notification_title">আসন্ন পরীক্ষা রিমাইন্ডার</string>
+    <string name="reminder_notification_body">আপনার %1$s পরীক্ষা শীঘ্রই শুরু হতে যাচ্ছে।</string>
+
+    <!-- Settings -->
+    <string name="settings_title">সেটিংস</string>
+    <string name="pref_language">অ্যাপের ভাষা</string>
+    <string name="pref_language_desc">English অথবা বাংলা নির্বাচন করুন</string>
+    <string name="pref_theme">থিম</string>
+    <string name="theme_system">সিস্টেম ডিফল্ট</string>
+    <string name="theme_light">লাইট</string>
+    <string name="theme_dark">ডার্ক</string>
+    <string name="pref_storage">স্টোরেজ ও ক্যাশ</string>
+    <string name="clear_cache_title">ক্যাশ ফাইল ও পিডিএফ মুছুন</string>
+    <string name="clear_cache_desc">ক্যাশ করা পিডিএফ মুছে জায়গা খালি করুন</string>
+    <string name="cache_cleared">ক্যাশ সফলভাবে মুছে ফেলা হয়েছে।</string>
+    <string name="about_title">পিওয়াইকিউ আর্কাইভ সম্পর্কে</string>
+    <string name="about_desc">শিক্ষার্থীদের জন্য বিভিন্ন বিশ্ববিদ্যালয়ের প্রশ্নপত্র সংবলিত নেটিভ অ্যান্ড্রয়েড অ্যাপ্লিকেশন।</string>
+    <string name="privacy_title">গোপনীয়তা নীতি</string>
+    <string name="privacy_desc">আপনার সকল বুকমার্ক, ডাউনলোড এবং নোট সম্পূর্ণ নিরাপদভাবে আপনার নিজস্ব ডিভাইসে সংরক্ষিত থাকে।</string>
+
+    <!-- Common -->
+    <string name="loading">লোড হচ্ছে…</string>
+    <string name="retry">আবার চেষ্টা করুন</string>
+    <string name="error">একটি সমস্যা হয়েছে।</string>
+    <string name="offline_mode">অফলাইন মোড</string>
+    <string name="online_mode">অনলাইন</string>
+</resources>

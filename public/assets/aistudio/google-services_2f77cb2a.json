@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "780984043558",
+    "project_id": "pyqhub-new",
+    "storage_bucket": "pyqhub-new.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:780984043558:android:a2be4bbc5ae4adfc533ee7",
+        "android_client_info": {
+          "package_name": "com.pyqarchive.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB3hxWdH9ezqnffoArRzzt0-1xt1FmVaEE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

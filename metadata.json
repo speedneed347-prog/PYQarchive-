@@ -1,0 +1,6 @@
+{
+  "name": "PYQ Archive",
+  "description": "Native Android client for university previous year question papers archive with offline reading and search.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
