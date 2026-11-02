@@ -1,6 +1,9 @@
 package com.example.ui.home
 
 import android.app.Application
+import android.content.Context
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.data.model.Course
@@ -104,11 +107,16 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
 
     fun refreshData() {
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
+            _uiState.value = _uiState.value.copy(isLoading = true, isRefreshing = true, errorMessage = null)
             val refResult = repository.syncReferenceData()
             val papersResult = repository.syncPublishedPapers(limit = 500)
 
-            val isOffline = refResult.isFailure && papersResult.isFailure
+            val hasOnlineSync = refResult.isSuccess || papersResult.isSuccess
+            val networkAvailable = isNetworkConnected()
+
+            // If sync succeeded or device is online, we are NOT offline!
+            val isOffline = !hasOnlineSync && !networkAvailable
+
             _uiState.value = _uiState.value.copy(
                 isLoading = false,
                 isRefreshing = false,
@@ -120,6 +128,17 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
             studentExamSchedule.value?.let { schedule ->
                 studentProfileManager.scheduleAutomatedExamAlerts(schedule)
             }
+        }
+    }
+
+    private fun isNetworkConnected(): Boolean {
+        return try {
+            val cm = getApplication<Application>().getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager ?: return false
+            val network = cm.activeNetwork ?: return false
+            val caps = cm.getNetworkCapabilities(network) ?: return false
+            caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+        } catch (_: Throwable) {
+            false
         }
     }
 

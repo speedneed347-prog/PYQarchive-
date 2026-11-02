@@ -1,6 +1,7 @@
 package com.example.data.repository
 
 import android.content.Context
+import android.util.Log
 import com.example.data.local.CourseEntity
 import com.example.data.local.ExamScheduleEntity
 import com.example.data.local.LanguageEntity
@@ -20,6 +21,7 @@ import com.example.data.model.Semester
 import com.example.data.model.Subject
 import com.example.data.model.University
 import com.example.data.model.YearItem
+import com.example.data.remote.FirestoreRestClient
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FirebaseFirestoreSettings
 import com.google.firebase.firestore.Query
@@ -34,7 +36,10 @@ class ArchiveRepository(private val context: Context) {
     companion object {
         @Volatile
         private var settingsConfigured = false
+        private const val TAG = "ArchiveRepository"
     }
+
+    private val restClient = FirestoreRestClient()
 
     private val firestore: FirebaseFirestore by lazy {
         val instance = FirebaseFirestore.getInstance()
@@ -47,7 +52,6 @@ class ArchiveRepository(private val context: Context) {
                             .build()
                         instance.firestoreSettings = settings
                     } catch (_: Throwable) {
-                        // Settings can only be configured once before any Firestore operation.
                         // Persistence is on by default in Android Firestore SDK.
                     }
                     settingsConfigured = true
@@ -265,6 +269,66 @@ class ArchiveRepository(private val context: Context) {
                 // Non-fatal if exam_schedules is empty or missing
             }
 
+            // 2. Fallback to HTTPS REST client if SDK returned no data or failed
+            if (!anySynced) {
+                try {
+                    Log.i(TAG, "SDK reference sync returned empty or failed. Attempting REST fallback...")
+                    val unis = restClient.fetchUniversities()
+                    if (unis.isNotEmpty()) {
+                        refDao.insertUniversities(unis)
+                        uniEntities = unis
+                        anySynced = true
+                    }
+
+                    val courses = restClient.fetchCourses()
+                    if (courses.isNotEmpty()) {
+                        refDao.insertCourses(courses)
+                        anySynced = true
+                    }
+
+                    val sems = restClient.fetchSemesters()
+                    if (sems.isNotEmpty()) {
+                        refDao.insertSemesters(sems)
+                        semEntities = sems
+                        anySynced = true
+                    }
+
+                    val subs = restClient.fetchSubjects()
+                    if (subs.isNotEmpty()) {
+                        refDao.insertSubjects(subs)
+                        anySynced = true
+                    }
+
+                    val years = restClient.fetchYears()
+                    if (years.isNotEmpty()) {
+                        refDao.insertYears(years)
+                        anySynced = true
+                    }
+
+                    val pts = restClient.fetchPaperTypes()
+                    if (pts.isNotEmpty()) {
+                        refDao.insertPaperTypes(pts)
+                        anySynced = true
+                    }
+
+                    val langs = restClient.fetchLanguages()
+                    if (langs.isNotEmpty()) {
+                        refDao.insertLanguages(langs)
+                        anySynced = true
+                    }
+
+                    val uniMap = uniEntities.associate { it.id to it.name }
+                    val semMap = semEntities.associate { it.id to it.name }
+                    val exams = restClient.fetchExamSchedules(uniMap, semMap)
+                    if (exams.isNotEmpty()) {
+                        refDao.insertExamSchedules(exams)
+                        anySynced = true
+                    }
+                } catch (t: Throwable) {
+                    Log.w(TAG, "REST reference sync failed: ${t.message}")
+                }
+            }
+
             if (anySynced) Result.success(Unit) else Result.failure(Exception("No reference collections available"))
         } catch (e: Exception) {
             Result.failure(e)
@@ -272,6 +336,9 @@ class ArchiveRepository(private val context: Context) {
     }
 
     suspend fun syncPublishedPapers(limit: Long = 1000): Result<Int> = withContext(Dispatchers.IO) {
+        var syncedCount = 0
+
+        // 1. First try Firestore SDK
         try {
             val snapshot = try {
                 firestore.collection("papers")
@@ -286,39 +353,68 @@ class ArchiveRepository(private val context: Context) {
                     .await()
             }
 
-            val entities = snapshot.documents.map { doc ->
-                val yearVal = doc.get("year")?.toString() ?: ""
-                val viewCountVal = (doc.get("viewCount") as? Number)?.toLong() ?: 0L
+            if (!snapshot.isEmpty) {
+                val entities = snapshot.documents.mapNotNull { doc ->
+                    try {
+                        val yearVal = doc.get("year")?.toString() ?: ""
+                        val viewCountVal = (doc.get("viewCount") as? Number)?.toLong() ?: 0L
 
-                PaperEntity(
-                    id = doc.id,
-                    title = doc.getString("title") ?: "Untitled Paper",
-                    pdfUrl = doc.getString("pdfUrl") ?: "",
-                    universityId = doc.getString("universityId") ?: "",
-                    universityName = doc.getString("universityName") ?: "",
-                    courseId = doc.getString("courseId") ?: "",
-                    courseName = doc.getString("courseName") ?: "",
-                    semesterId = doc.getString("semesterId") ?: "",
-                    semesterName = doc.getString("semesterName") ?: "",
-                    subjectId = doc.getString("subjectId") ?: "",
-                    subjectName = doc.getString("subjectName") ?: "",
-                    yearId = doc.getString("yearId") ?: "",
-                    year = yearVal,
-                    paperTypeId = doc.getString("paperTypeId") ?: "",
-                    paperTypeName = doc.getString("paperTypeName") ?: "",
-                    languageId = doc.getString("languageId") ?: "",
-                    languageName = doc.getString("languageName") ?: "",
-                    status = doc.getString("status") ?: "published",
-                    description = doc.getString("description") ?: "",
-                    viewCount = viewCountVal,
-                    createdAtMillis = doc.getTimestamp("createdAt")?.toDate()?.time
-                )
+                        PaperEntity(
+                            id = doc.id,
+                            title = doc.getString("title") ?: "Untitled Paper",
+                            pdfUrl = doc.getString("pdfUrl") ?: "",
+                            universityId = doc.getString("universityId") ?: "",
+                            universityName = doc.getString("universityName") ?: "",
+                            courseId = doc.getString("courseId") ?: "",
+                            courseName = doc.getString("courseName") ?: "",
+                            semesterId = doc.getString("semesterId") ?: "",
+                            semesterName = doc.getString("semesterName") ?: "",
+                            subjectId = doc.getString("subjectId") ?: "",
+                            subjectName = doc.getString("subjectName") ?: "",
+                            yearId = doc.getString("yearId") ?: "",
+                            year = yearVal,
+                            paperTypeId = doc.getString("paperTypeId") ?: "",
+                            paperTypeName = doc.getString("paperTypeName") ?: "",
+                            languageId = doc.getString("languageId") ?: "",
+                            languageName = doc.getString("languageName") ?: "",
+                            status = doc.getString("status") ?: "published",
+                            description = doc.getString("description") ?: "",
+                            viewCount = viewCountVal,
+                            createdAtMillis = try { doc.getTimestamp("createdAt")?.toDate()?.time } catch (_: Throwable) { null }
+                        )
+                    } catch (_: Throwable) {
+                        null
+                    }
+                }
+
+                if (entities.isNotEmpty()) {
+                    paperDao.upsertPreservingLocalState(entities)
+                    syncedCount = entities.size
+                }
             }
+        } catch (t: Throwable) {
+            Log.w(TAG, "Firestore SDK paper sync failed: ${t.message}")
+        }
 
-            paperDao.upsertPreservingLocalState(entities)
-            Result.success(entities.size)
-        } catch (e: Exception) {
-            Result.failure(e)
+        // 2. Fallback to HTTPS REST client if SDK returned 0 papers
+        if (syncedCount == 0) {
+            try {
+                Log.i(TAG, "SDK papers sync returned 0. Attempting REST fallback...")
+                val restPapers = restClient.fetchPapers()
+                if (restPapers.isNotEmpty()) {
+                    paperDao.upsertPreservingLocalState(restPapers)
+                    syncedCount = restPapers.size
+                    Log.i(TAG, "Successfully synced ${restPapers.size} papers via REST fallback.")
+                }
+            } catch (t: Throwable) {
+                Log.w(TAG, "REST paper sync failed: ${t.message}")
+            }
+        }
+
+        if (syncedCount > 0) {
+            Result.success(syncedCount)
+        } else {
+            Result.failure(Exception("Unable to sync papers from Firestore"))
         }
     }
 
@@ -326,6 +422,7 @@ class ArchiveRepository(private val context: Context) {
         val local = paperDao.getPaperDirect(paperId)
         if (local != null) return@withContext local.toDomain()
 
+        // 1. Try SDK
         try {
             val doc = firestore.collection("papers").document(paperId).get().await()
             if (doc.exists()) {
@@ -352,14 +449,22 @@ class ArchiveRepository(private val context: Context) {
                     status = doc.getString("status") ?: "published",
                     description = doc.getString("description") ?: "",
                     viewCount = viewCountVal,
-                    createdAtMillis = doc.getTimestamp("createdAt")?.toDate()?.time
+                    createdAtMillis = try { doc.getTimestamp("createdAt")?.toDate()?.time } catch (_: Throwable) { null }
                 )
                 paperDao.insertPaper(entity)
                 return@withContext entity.toDomain()
             }
-        } catch (e: Exception) {
-            // Offline or error
-        }
+        } catch (_: Throwable) {}
+
+        // 2. Try REST fallback
+        try {
+            val restDoc = restClient.fetchPaperById(paperId)
+            if (restDoc != null) {
+                paperDao.insertPaper(restDoc)
+                return@withContext restDoc.toDomain()
+            }
+        } catch (_: Throwable) {}
+
         null
     }
 

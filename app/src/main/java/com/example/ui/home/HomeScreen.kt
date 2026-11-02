@@ -144,7 +144,10 @@ fun HomeScreen(
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
-            OfflineNoticeBanner(isOffline = uiState.isOffline)
+            OfflineNoticeBanner(
+                isOffline = uiState.isOffline,
+                onRetry = viewModel::refreshData
+            )
 
             if (uiState.isLoading && universities.isEmpty() && popularPapers.isEmpty()) {
                 LoadingStateView(message = stringResource(R.string.loading))
@@ -237,10 +240,30 @@ fun HomeScreen(
 
                     if (popularPapers.isEmpty()) {
                         item {
-                            EmptyStateView(
-                                title = stringResource(R.string.no_popular_papers),
-                                modifier = Modifier.padding(16.dp)
-                            )
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(16.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                EmptyStateView(
+                                    title = stringResource(R.string.no_popular_papers),
+                                    message = "Tap below to fetch papers from the online archive"
+                                )
+                                Spacer(modifier = Modifier.height(10.dp))
+                                OutlinedButton(
+                                    onClick = viewModel::refreshData,
+                                    modifier = Modifier.testTag("home_retry_sync_btn")
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.TrendingUp,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(16.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Text("Fetch Archive Papers")
+                                }
+                            }
                         }
                     } else {
                         items(popularPapers) { paper ->
