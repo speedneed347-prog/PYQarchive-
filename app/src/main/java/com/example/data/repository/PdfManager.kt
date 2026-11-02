@@ -198,42 +198,48 @@ class PdfManager(private val context: Context) {
     }
 
     fun renderPdfPage(file: File, pageIndex: Int, screenWidthPx: Int): Bitmap? {
+        var pfd: ParcelFileDescriptor? = null
+        var renderer: PdfRenderer? = null
+        var page: PdfRenderer.Page? = null
         return try {
-            val pfd = ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY)
-            val renderer = PdfRenderer(pfd)
+            if (!file.exists() || file.length() < 10) return null
+            pfd = ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY)
+            renderer = PdfRenderer(pfd)
             if (pageIndex < 0 || pageIndex >= renderer.pageCount) {
-                renderer.close()
-                pfd.close()
                 return null
             }
 
-            val page = renderer.openPage(pageIndex)
-            val aspectRatio = page.height.toFloat() / page.width.toFloat()
-            val targetWidth = screenWidthPx.coerceAtLeast(400)
-            val targetHeight = (targetWidth * aspectRatio).toInt().coerceAtLeast(400)
+            page = renderer.openPage(pageIndex)
+            val aspectRatio = page.height.toFloat() / page.width.toFloat().coerceAtLeast(1f)
+            val targetWidth = screenWidthPx.coerceIn(400, 1440)
+            val targetHeight = (targetWidth * aspectRatio).toInt().coerceIn(400, 2560)
 
             val bitmap = Bitmap.createBitmap(targetWidth, targetHeight, Bitmap.Config.ARGB_8888)
             page.render(bitmap, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
-            page.close()
-            renderer.close()
-            pfd.close()
             bitmap
-        } catch (e: Exception) {
-            e.printStackTrace()
+        } catch (_: Throwable) {
             null
+        } finally {
+            try { page?.close() } catch (_: Throwable) {}
+            try { renderer?.close() } catch (_: Throwable) {}
+            try { pfd?.close() } catch (_: Throwable) {}
         }
     }
 
     fun getPageCount(file: File): Int {
+        var pfd: ParcelFileDescriptor? = null
+        var renderer: PdfRenderer? = null
         return try {
-            val pfd = ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY)
-            val renderer = PdfRenderer(pfd)
+            if (!file.exists() || file.length() < 10) return 1
+            pfd = ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY)
+            renderer = PdfRenderer(pfd)
             val count = renderer.pageCount
-            renderer.close()
-            pfd.close()
-            count
-        } catch (e: Exception) {
+            if (count > 0) count else 1
+        } catch (_: Throwable) {
             1
+        } finally {
+            try { renderer?.close() } catch (_: Throwable) {}
+            try { pfd?.close() } catch (_: Throwable) {}
         }
     }
 }

@@ -53,8 +53,11 @@ class ExamReminderReceiver : BroadcastReceiver() {
             .setAutoCancel(true)
             .setContentIntent(pendingIntent)
             .build()
-
-        notificationManager.notify(notificationId, notification)
+        try {
+            notificationManager.notify(notificationId, notification)
+        } catch (_: Throwable) {
+            // Safe fallback if notifications are disabled or restricted
+        }
     }
 
     companion object {

@@ -52,14 +52,28 @@ class ExamCountdownViewModel(application: Application) : AndroidViewModel(applic
         )
 
         return try {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                alarmManager.setExactAndAllowWhileIdle(
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                if (alarmManager.canScheduleExactAlarms()) {
+                    alarmManager.setExactAndAllowWhileIdle(
+                        AlarmManager.RTC_WAKEUP,
+                        reminderTimeMillis,
+                        pendingIntent
+                    )
+                } else {
+                    alarmManager.setAndAllowWhileIdle(
+                        AlarmManager.RTC_WAKEUP,
+                        reminderTimeMillis,
+                        pendingIntent
+                    )
+                }
+            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                alarmManager.setAndAllowWhileIdle(
                     AlarmManager.RTC_WAKEUP,
                     reminderTimeMillis,
                     pendingIntent
                 )
             } else {
-                alarmManager.setExact(
+                alarmManager.set(
                     AlarmManager.RTC_WAKEUP,
                     reminderTimeMillis,
                     pendingIntent
@@ -67,8 +81,8 @@ class ExamCountdownViewModel(application: Application) : AndroidViewModel(applic
             }
             val dateStr = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).format(reminderTimeMillis)
             Result.success(dateStr)
-        } catch (e: SecurityException) {
-            Result.failure(e)
+        } catch (t: Throwable) {
+            Result.failure(t)
         }
     }
 }

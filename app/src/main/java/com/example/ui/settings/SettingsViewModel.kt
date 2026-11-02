@@ -56,7 +56,7 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     private val _uiState = MutableStateFlow(
         SettingsUiState(
             currentLanguage = prefs.getString("app_lang", "en") ?: "en",
-            currentTheme = AppThemeMode.valueOf(prefs.getString("app_theme", AppThemeMode.SYSTEM.name) ?: AppThemeMode.SYSTEM.name),
+            currentTheme = AppThemeMode.values().firstOrNull { it.name == prefs.getString("app_theme", null) } ?: AppThemeMode.SYSTEM,
             storageUsageString = pdfManager.formatFileSize(pdfManager.getUsedStorageBytes())
         )
     )

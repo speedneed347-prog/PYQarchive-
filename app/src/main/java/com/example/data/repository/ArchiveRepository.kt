@@ -31,11 +31,30 @@ import kotlinx.coroutines.withContext
 
 class ArchiveRepository(private val context: Context) {
 
-    private val firestore: FirebaseFirestore = FirebaseFirestore.getInstance().apply {
-        // Enable offline persistence
-        firestoreSettings = FirebaseFirestoreSettings.Builder()
-            .setPersistenceEnabled(true)
-            .build()
+    companion object {
+        @Volatile
+        private var settingsConfigured = false
+    }
+
+    private val firestore: FirebaseFirestore by lazy {
+        val instance = FirebaseFirestore.getInstance()
+        if (!settingsConfigured) {
+            synchronized(ArchiveRepository::class.java) {
+                if (!settingsConfigured) {
+                    try {
+                        val settings = FirebaseFirestoreSettings.Builder()
+                            .setPersistenceEnabled(true)
+                            .build()
+                        instance.firestoreSettings = settings
+                    } catch (_: Throwable) {
+                        // Settings can only be configured once before any Firestore operation.
+                        // Persistence is on by default in Android Firestore SDK.
+                    }
+                    settingsConfigured = true
+                }
+            }
+        }
+        instance
     }
 
     private val db = PyqDatabase.getInstance(context)
@@ -94,77 +113,130 @@ class ArchiveRepository(private val context: Context) {
 
     suspend fun syncReferenceData(): Result<Unit> = withContext(Dispatchers.IO) {
         try {
+            var anySynced = false
+            var uniEntities = emptyList<UniversityEntity>()
+            var semEntities = emptyList<SemesterEntity>()
+
             // 1. Universities
-            val uniSnap = firestore.collection("universities").orderBy("name").get().await()
-            val uniEntities = uniSnap.documents.map { doc ->
-                UniversityEntity(
-                    id = doc.id,
-                    name = doc.getString("name") ?: doc.id,
-                    shortName = doc.getString("short_name") ?: doc.getString("shortName") ?: "",
-                    description = doc.getString("description") ?: "",
-                    logo = doc.getString("logo") ?: ""
-                )
+            try {
+                val uniSnap = firestore.collection("universities").get().await()
+                uniEntities = uniSnap.documents.map { doc ->
+                    UniversityEntity(
+                        id = doc.id,
+                        name = doc.getString("name") ?: doc.id,
+                        shortName = doc.getString("short_name") ?: doc.getString("shortName") ?: "",
+                        description = doc.getString("description") ?: "",
+                        logo = doc.getString("logo") ?: ""
+                    )
+                }
+                if (uniEntities.isNotEmpty()) {
+                    refDao.insertUniversities(uniEntities)
+                    anySynced = true
+                }
+            } catch (e: Exception) {
+                // Ignore collection-specific failure
             }
-            refDao.insertUniversities(uniEntities)
 
             // 2. Courses
-            val courseSnap = firestore.collection("courses").orderBy("name").get().await()
-            val courseEntities = courseSnap.documents.map { doc ->
-                CourseEntity(
-                    id = doc.id,
-                    name = doc.getString("name") ?: doc.id
-                )
+            try {
+                val courseSnap = firestore.collection("courses").get().await()
+                val courseEntities = courseSnap.documents.map { doc ->
+                    CourseEntity(
+                        id = doc.id,
+                        name = doc.getString("name") ?: doc.id
+                    )
+                }
+                if (courseEntities.isNotEmpty()) {
+                    refDao.insertCourses(courseEntities)
+                    anySynced = true
+                }
+            } catch (e: Exception) {
+                // Ignore
             }
-            refDao.insertCourses(courseEntities)
 
             // 3. Semesters
-            val semSnap = firestore.collection("semesters").orderBy("name").get().await()
-            val semEntities = semSnap.documents.map { doc ->
-                SemesterEntity(
-                    id = doc.id,
-                    name = doc.getString("name") ?: doc.id
-                )
+            try {
+                val semSnap = firestore.collection("semesters").get().await()
+                semEntities = semSnap.documents.map { doc ->
+                    SemesterEntity(
+                        id = doc.id,
+                        name = doc.getString("name") ?: doc.id
+                    )
+                }
+                if (semEntities.isNotEmpty()) {
+                    refDao.insertSemesters(semEntities)
+                    anySynced = true
+                }
+            } catch (e: Exception) {
+                // Ignore
             }
-            refDao.insertSemesters(semEntities)
 
             // 4. Subjects
-            val subSnap = firestore.collection("subjects").orderBy("name").get().await()
-            val subEntities = subSnap.documents.map { doc ->
-                SubjectEntity(
-                    id = doc.id,
-                    name = doc.getString("name") ?: doc.id,
-                    code = doc.getString("code") ?: ""
-                )
+            try {
+                val subSnap = firestore.collection("subjects").get().await()
+                val subEntities = subSnap.documents.map { doc ->
+                    SubjectEntity(
+                        id = doc.id,
+                        name = doc.getString("name") ?: doc.id,
+                        code = doc.getString("code") ?: ""
+                    )
+                }
+                if (subEntities.isNotEmpty()) {
+                    refDao.insertSubjects(subEntities)
+                    anySynced = true
+                }
+            } catch (e: Exception) {
+                // Ignore
             }
-            refDao.insertSubjects(subEntities)
 
             // 5. Years
-            val yearSnap = firestore.collection("years").orderBy("year", Query.Direction.DESCENDING).get().await()
-            val yearEntities = yearSnap.documents.map { doc ->
-                val yearVal = doc.get("year")?.toString() ?: doc.getString("name") ?: doc.id
-                YearEntity(id = doc.id, year = yearVal)
+            try {
+                val yearSnap = firestore.collection("years").get().await()
+                val yearEntities = yearSnap.documents.map { doc ->
+                    val yearVal = doc.get("year")?.toString() ?: doc.getString("name") ?: doc.id
+                    YearEntity(id = doc.id, year = yearVal)
+                }
+                if (yearEntities.isNotEmpty()) {
+                    refDao.insertYears(yearEntities)
+                    anySynced = true
+                }
+            } catch (e: Exception) {
+                // Ignore
             }
-            refDao.insertYears(yearEntities)
 
             // 6. Paper Types
-            val ptSnap = firestore.collection("paper_types").orderBy("name").get().await()
-            val ptEntities = ptSnap.documents.map { doc ->
-                PaperTypeEntity(
-                    id = doc.id,
-                    name = doc.getString("name") ?: doc.id
-                )
+            try {
+                val ptSnap = firestore.collection("paper_types").get().await()
+                val ptEntities = ptSnap.documents.map { doc ->
+                    PaperTypeEntity(
+                        id = doc.id,
+                        name = doc.getString("name") ?: doc.id
+                    )
+                }
+                if (ptEntities.isNotEmpty()) {
+                    refDao.insertPaperTypes(ptEntities)
+                    anySynced = true
+                }
+            } catch (e: Exception) {
+                // Ignore
             }
-            refDao.insertPaperTypes(ptEntities)
 
             // 7. Languages
-            val langSnap = firestore.collection("languages").orderBy("name").get().await()
-            val langEntities = langSnap.documents.map { doc ->
-                LanguageEntity(
-                    id = doc.id,
-                    name = doc.getString("name") ?: doc.id
-                )
+            try {
+                val langSnap = firestore.collection("languages").get().await()
+                val langEntities = langSnap.documents.map { doc ->
+                    LanguageEntity(
+                        id = doc.id,
+                        name = doc.getString("name") ?: doc.id
+                    )
+                }
+                if (langEntities.isNotEmpty()) {
+                    refDao.insertLanguages(langEntities)
+                    anySynced = true
+                }
+            } catch (e: Exception) {
+                // Ignore
             }
-            refDao.insertLanguages(langEntities)
 
             // 8. Exam Schedules
             try {
@@ -185,12 +257,15 @@ class ArchiveRepository(private val context: Context) {
                         academicYear = doc.getString("academicYear") ?: ""
                     )
                 }
-                refDao.insertExamSchedules(scheduleEntities)
+                if (scheduleEntities.isNotEmpty()) {
+                    refDao.insertExamSchedules(scheduleEntities)
+                    anySynced = true
+                }
             } catch (e: Exception) {
-                // Non-fatal if exam_schedules is empty
+                // Non-fatal if exam_schedules is empty or missing
             }
 
-            Result.success(Unit)
+            if (anySynced) Result.success(Unit) else Result.failure(Exception("No reference collections available"))
         } catch (e: Exception) {
             Result.failure(e)
         }
@@ -198,11 +273,18 @@ class ArchiveRepository(private val context: Context) {
 
     suspend fun syncPublishedPapers(limit: Long = 1000): Result<Int> = withContext(Dispatchers.IO) {
         try {
-            val snapshot = firestore.collection("papers")
-                .whereEqualTo("status", "published")
-                .limit(limit)
-                .get()
-                .await()
+            val snapshot = try {
+                firestore.collection("papers")
+                    .whereEqualTo("status", "published")
+                    .limit(limit)
+                    .get()
+                    .await()
+            } catch (_: Exception) {
+                firestore.collection("papers")
+                    .limit(limit)
+                    .get()
+                    .await()
+            }
 
             val entities = snapshot.documents.map { doc ->
                 val yearVal = doc.get("year")?.toString() ?: ""
