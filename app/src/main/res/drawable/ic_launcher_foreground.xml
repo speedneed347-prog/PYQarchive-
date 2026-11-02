@@ -1,51 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="108dp"
-    android:height="108dp"
-    android:viewportWidth="108"
-    android:viewportHeight="108">
-    <group
-        android:translateX="22"
-        android:translateY="22">
-        <!-- Back document / sheet -->
-        <path
-            android:fillColor="#38BDF8"
-            android:pathData="M16,14 L48,14 C50.2,14 52,15.8 52,18 L52,50 C52,52.2 50.2,54 48,54 L16,54 C13.8,54 12,52.2 12,50 L12,18 C12,15.8 13.8,14 16,14 Z" />
-        <!-- Front document / sheet with folded corner -->
-        <path
-            android:fillColor="#FFFFFF"
-            android:pathData="M12,20 L38,20 L48,30 L48,58 C48,60.2 46.2,62 44,62 L12,62 C9.8,62 8,60.2 8,58 L8,24 C8,21.8 9.8,20 12,20 Z" />
-        <!-- Corner fold -->
-        <path
-            android:fillColor="#CBD5E1"
-            android:pathData="M38,20 L48,30 L38,30 Z" />
-        <!-- Document text lines -->
-        <path
-            android:fillColor="#94A3B8"
-            android:pathData="M14,34 L32,34 C33.1,34 34,33.1 34,32 C34,30.9 33.1,30 32,30 L14,30 C12.9,30 12,30.9 12,32 C12,33.1 12.9,34 14,34 Z" />
-        <path
-            android:fillColor="#94A3B8"
-            android:pathData="M14,42 L42,42 C43.1,42 44,41.1 44,40 C44,38.9 43.1,38 42,38 L14,38 C12.9,38 12,38.9 12,40 C12,41.1 12.9,42 14,42 Z" />
-        <path
-            android:fillColor="#94A3B8"
-            android:pathData="M14,50 L36,50 C37.1,50 38,49.1 38,48 C38,46.9 37.1,46 36,46 L14,46 C12.9,46 12,46.9 12,48 C12,49.1 12.9,50 14,50 Z" />
-
-        <!-- Graduation Cap (Mortarboard) - Gold / Amber -->
-        <!-- Diamond cap top -->
-        <path
-            android:fillColor="#F59E0B"
-            android:pathData="M32,2 L58,14 L32,26 L6,14 Z" />
-        <!-- Cap skull cap base -->
-        <path
-            android:fillColor="#D97706"
-            android:pathData="M16,19 L16,28 C16,33 23,37 32,37 C41,37 48,33 48,28 L48,19 L32,26 Z" />
-        <!-- Tassel cord & tassel -->
-        <path
-            android:strokeColor="#FEF08A"
-            android:strokeWidth="2"
-            android:pathData="M48,16 L53,24 L53,30" />
-        <path
-            android:fillColor="#FEF08A"
-            android:pathData="M51,30 L55,30 L54,36 L52,36 Z" />
-    </group>
-</vector>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:width="66dp"
+        android:height="66dp"
+        android:drawable="@drawable/app_icon"
+        android:gravity="center" />
+</layer-list>
