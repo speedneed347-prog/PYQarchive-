@@ -1,5 +1,10 @@
 package com.example.ui.home
 
+import android.app.Activity
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.IntentSenderRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -24,6 +29,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Alarm
 import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.AutoAwesome
+import androidx.compose.material.icons.filled.DocumentScanner
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.HourglassTop
 import androidx.compose.material.icons.filled.NotificationsActive
@@ -48,9 +54,14 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -58,6 +69,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.example.R
+import com.example.util.DocumentScannerHelper
+import kotlinx.coroutines.launch
 import com.example.data.model.ExamSchedule
 import com.example.data.model.StudentProfile
 import com.example.data.model.University
@@ -75,8 +88,15 @@ fun HomeScreen(
     onNavigateToUniversityDetail: (String) -> Unit,
     onNavigateToPaperDetail: (String) -> Unit,
     onNavigateToExams: () -> Unit,
+    onNavigateToPdfViewer: (String) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
+    val context = LocalContext.current
+    val activity = context as? Activity
+    val coroutineScope = rememberCoroutineScope()
+    val scannerHelper = remember { DocumentScannerHelper(context) }
+    var isScanning by remember { mutableStateOf(false) }
+
     val uiState by viewModel.uiState.collectAsState()
     val studentProfile by viewModel.studentProfile.collectAsState()
     val universities by viewModel.universities.collectAsState()
@@ -86,6 +106,41 @@ fun HomeScreen(
     val recentPapers by viewModel.recentPapers.collectAsState()
     val recommendedPapers by viewModel.recommendedPapers.collectAsState()
     val studentExamSchedule by viewModel.studentExamSchedule.collectAsState()
+
+    val scannerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartIntentSenderForResult()
+    ) { result ->
+        isScanning = false
+        if (result.resultCode == Activity.RESULT_OK) {
+            coroutineScope.launch {
+                val scanResult = scannerHelper.handleScanResult(result.data)
+                scanResult.onSuccess { savedPaper ->
+                    Toast.makeText(context, "Paper scanned and saved successfully!", Toast.LENGTH_SHORT).show()
+                    onNavigateToPdfViewer(savedPaper.id)
+                }.onFailure { err ->
+                    Toast.makeText(context, "Scanning failed: ${err.message}", Toast.LENGTH_LONG).show()
+                }
+            }
+        }
+    }
+
+    val startScanner = {
+        if (activity != null) {
+            isScanning = true
+            scannerHelper.startScanning(
+                activity = activity,
+                onIntentSenderReady = { intentSender ->
+                    scannerLauncher.launch(IntentSenderRequest.Builder(intentSender).build())
+                },
+                onError = { err ->
+                    isScanning = false
+                    Toast.makeText(context, "Scanner unavailable: ${err.message}", Toast.LENGTH_LONG).show()
+                }
+            )
+        } else {
+            Toast.makeText(context, "Cannot launch scanner from current context.", Toast.LENGTH_SHORT).show()
+        }
+    }
 
     Scaffold(
         modifier = modifier.fillMaxSize().testTag("home_screen"),
@@ -123,6 +178,17 @@ fun HomeScreen(
                 },
                 actions = {
                     IconButton(
+                        onClick = startScanner,
+                        modifier = Modifier.testTag("home_scan_doc_btn")
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.DocumentScanner,
+                            contentDescription = "Scan Document",
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                    }
+
+                    IconButton(
                         onClick = viewModel::openOnboardingDialog,
                         modifier = Modifier.testTag("home_edit_profile_btn")
                     ) {
@@ -159,6 +225,11 @@ fun HomeScreen(
                     // Search Bar Tap Banner
                     item {
                         SearchBarBanner(onClick = onNavigateToSearch)
+                    }
+
+                    // Google Document Scanner Action Banner (Requirement 3)
+                    item {
+                        ScanPaperBanner(onClick = startScanner)
                     }
 
                     // Academic Profile Status Banner / Setup prompt
@@ -578,6 +649,73 @@ fun UniversitiesCarousel(
                         overflow = TextOverflow.Ellipsis
                     )
                 }
+            }
+        }
+    }
+}
+
+@Composable
+fun ScanPaperBanner(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Card(
+        onClick = onClick,
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 6.dp)
+            .testTag("home_scan_paper_card"),
+        shape = RoundedCornerShape(18.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.55f)
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(14.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Surface(
+                shape = CircleShape,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(46.dp)
+            ) {
+                Box(contentAlignment = Alignment.Center) {
+                    Icon(
+                        imageVector = Icons.Default.DocumentScanner,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onPrimary,
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.width(14.dp))
+
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = "Google Document Scanner",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                )
+                Spacer(modifier = Modifier.height(2.dp))
+                Text(
+                    text = "Scan physical papers with auto-edge detection & save as PDF",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.85f)
+                )
+            }
+
+            Spacer(modifier = Modifier.width(8.dp))
+
+            Button(
+                onClick = onClick,
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Text("Scan")
             }
         }
     }

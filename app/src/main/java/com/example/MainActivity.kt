@@ -88,7 +88,10 @@ class MainActivity : ComponentActivity() {
                                 onNavigateToPaperDetail = { id ->
                                     navController.navigate(Screen.createPaperDetailRoute(id))
                                 },
-                                onNavigateToExams = { navController.navigate(Screen.ROUTE_EXAMS) }
+                                onNavigateToExams = { navController.navigate(Screen.ROUTE_EXAMS) },
+                                onNavigateToPdfViewer = { id ->
+                                    navController.navigate(Screen.createPdfViewerRoute(id))
+                                }
                             )
                         }
 

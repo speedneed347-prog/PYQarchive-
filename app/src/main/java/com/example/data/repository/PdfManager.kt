@@ -70,6 +70,20 @@ class PdfManager(private val context: Context) {
         return null
     }
 
+    fun saveScannedPdf(contentUri: Uri, baseName: String): File? {
+        return try {
+            val destFile = File(downloadsDir, "$baseName.pdf")
+            context.contentResolver.openInputStream(contentUri)?.use { input ->
+                FileOutputStream(destFile).use { output ->
+                    input.copyTo(output)
+                }
+            }
+            if (destFile.exists() && destFile.length() > 0) destFile else null
+        } catch (_: Throwable) {
+            null
+        }
+    }
+
     suspend fun downloadPdf(
         paperId: String,
         rawUrl: String,

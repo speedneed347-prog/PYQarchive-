@@ -483,4 +483,45 @@ class ArchiveRepository(private val context: Context) {
     suspend fun recordLocalPaperView(paperId: String) = withContext(Dispatchers.IO) {
         paperDao.updateViewTimestamp(paperId, System.currentTimeMillis())
     }
+
+    suspend fun saveScannedPaper(
+        title: String,
+        file: java.io.File,
+        universityName: String = "Self Scanned Document",
+        subjectName: String = "Question Paper"
+    ): Paper = withContext(Dispatchers.IO) {
+        val id = "scan_${System.currentTimeMillis()}"
+        val currentYear = java.text.SimpleDateFormat("yyyy", java.util.Locale.getDefault()).format(java.util.Date())
+        val entity = PaperEntity(
+            id = id,
+            title = title.ifBlank { "Scanned Question Paper" },
+            pdfUrl = file.toURI().toString(),
+            universityId = "scanned",
+            universityName = universityName,
+            courseId = "",
+            courseName = "Scanned",
+            semesterId = "",
+            semesterName = "",
+            subjectId = "",
+            subjectName = subjectName,
+            yearId = "",
+            year = currentYear,
+            paperTypeId = "scanned",
+            paperTypeName = "Scanned PDF",
+            languageId = "",
+            languageName = "Document",
+            status = "published",
+            description = "Scanned with Google Play Services Document Scanner",
+            viewCount = 1,
+            createdAtMillis = System.currentTimeMillis(),
+            isFavorite = false,
+            personalNotes = "",
+            lastViewedTimestamp = System.currentTimeMillis(),
+            downloadedFilePath = file.absolutePath,
+            downloadedSizeBytes = file.length(),
+            downloadedAt = System.currentTimeMillis()
+        )
+        paperDao.insertPaper(entity)
+        entity.toDomain()
+    }
 }

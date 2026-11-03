@@ -75,9 +75,15 @@ class PdfViewerViewModel(application: Application) : AndroidViewModel(applicatio
         }
     }
 
+    private val pageCache = mutableMapOf<Int, Bitmap>()
+
     private suspend fun loadPdfFile(file: File) = withContext(Dispatchers.IO) {
+        pageCache.clear()
         val pageCount = pdfManager.getPageCount(file)
         val firstPageBitmap = pdfManager.renderPdfPage(file, 0, targetScreenWidthPx)
+        if (firstPageBitmap != null) {
+            pageCache[0] = firstPageBitmap
+        }
 
         _uiState.value = _uiState.value.copy(
             isLoading = false,
@@ -86,19 +92,59 @@ class PdfViewerViewModel(application: Application) : AndroidViewModel(applicatio
             currentPage = 0,
             currentPageBitmap = firstPageBitmap
         )
+
+        // Prefetch page 1 if available
+        if (pageCount > 1) {
+            val secondPage = pdfManager.renderPdfPage(file, 1, targetScreenWidthPx)
+            if (secondPage != null) {
+                pageCache[1] = secondPage
+            }
+        }
     }
 
     fun goToPage(pageIndex: Int) {
         val file = _uiState.value.localFile ?: return
         val total = _uiState.value.totalPages
         if (pageIndex < 0 || pageIndex >= total) return
+        if (pageIndex == _uiState.value.currentPage && _uiState.value.currentPageBitmap != null) return
+
+        val cached = pageCache[pageIndex]
+        if (cached != null) {
+            _uiState.value = _uiState.value.copy(
+                currentPage = pageIndex,
+                currentPageBitmap = cached
+            )
+            prefetchNeighbors(file, pageIndex, total)
+            return
+        }
 
         viewModelScope.launch(Dispatchers.IO) {
             val bitmap = pdfManager.renderPdfPage(file, pageIndex, targetScreenWidthPx)
+            if (bitmap != null) {
+                pageCache[pageIndex] = bitmap
+            }
             _uiState.value = _uiState.value.copy(
                 currentPage = pageIndex,
                 currentPageBitmap = bitmap
             )
+            prefetchNeighbors(file, pageIndex, total)
+        }
+    }
+
+    private fun prefetchNeighbors(file: File, currentPage: Int, totalPages: Int) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val next = currentPage + 1
+            if (next < totalPages && !pageCache.containsKey(next)) {
+                pdfManager.renderPdfPage(file, next, targetScreenWidthPx)?.let {
+                    pageCache[next] = it
+                }
+            }
+            val prev = currentPage - 1
+            if (prev >= 0 && !pageCache.containsKey(prev)) {
+                pdfManager.renderPdfPage(file, prev, targetScreenWidthPx)?.let {
+                    pageCache[prev] = it
+                }
+            }
         }
     }
 
